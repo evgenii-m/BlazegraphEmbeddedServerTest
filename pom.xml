@@ -18,6 +18,17 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/org.openrdf.rio.*</include>
+                    <include>**/com.bigdata.*</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -28,6 +39,57 @@
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.blazegraph</groupId>
+                                    <artifactId>bigdata-war-html</artifactId>
+                                    <version>2.1.4</version>
+                                    <type>war</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>target/classes/war</outputDirectory>
+                                    <destFileName>blazegraph.war</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>unpack-war</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <target>
+                                <unzip dest="target/classes/war">
+                                    <fileset dir="target/classes/war">
+                                        <include name="blazegraph.war"/>
+                                    </fileset>
+                                </unzip>
+                                <delete file="target/classes/war/blazegraph.war"/>
+                                <copy file="target/classes/war/WEB-INF/RWStore.properties" todir="target/classes"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

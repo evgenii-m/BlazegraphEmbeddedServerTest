@@ -1,7 +1,9 @@
 package com.example.blazegraph.test;
 
 import com.bigdata.Banner;
+import com.bigdata.journal.BufferMode;
 import com.bigdata.journal.ITx;
+import com.bigdata.journal.Journal;
 import com.bigdata.journal.TimestampUtility;
 import com.bigdata.rdf.sail.webapp.ConfigParams;
 import com.bigdata.rdf.sail.webapp.NanoSparqlServer;
@@ -10,6 +12,7 @@ import org.eclipse.jetty.server.Server;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class CustomBlazegraphServer extends NanoSparqlServer {
 
@@ -111,10 +114,20 @@ public class CustomBlazegraphServer extends NanoSparqlServer {
                 jettyXml.getClass().getResource("/war").toExternalForm());
 
         // Create the service.
+
+        final Properties journalProperties = new Properties();
+        {
+            journalProperties.setProperty(Journal.Options.BUFFER_MODE,
+                    BufferMode.MemStore.name());
+        }
+
+        Journal m_indexManager = new Journal(journalProperties);
+
         final Server server = CustomBlazegraphServer.newInstance(port, jettyXml,
                 null/* indexManager */, initParams);
 
 
+        server.start();
         awaitServerStart(server);
 
         System.out.println("\n\nWelcome to the Blazegraph(tm) Database.\n");
